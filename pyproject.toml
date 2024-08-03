@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "test-darwinsoft"
+version = "0.1.0"
+description = ""
+authors = ["Stanislav <sta-tun-slav@yandex.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = {extras = ["standard"], version = "^0.112.0"}
+pydantic = "^2.8.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
