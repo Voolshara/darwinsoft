@@ -70,6 +70,21 @@ def test_access_to_update_not_own_task():
         json={"title" : "No access to task"}
     ).status_code == 400
 
+def test_change_own_task_delete_status():
+    global task1, task2
+    assert requests.delete(f'http://127.0.0.1:8000/task/{task1.id}',
+        headers={"Authorization" : token1},
+        params={"is_deleted": "true"} 
+    ).status_code == 204
+
+def test_change_not_own_task_delete_status():
+    global task1, task2
+    assert requests.delete(f'http://127.0.0.1:8000/task/{task2.id}',
+        headers={"Authorization" : token1},
+        params={"is_deleted": "true"} 
+    ).status_code == 400
+
+
 # def test_get_user():
     # assert schemas.User(**crud.get_user_by_login(db=next(db), login=user1.login)) == user1 
 

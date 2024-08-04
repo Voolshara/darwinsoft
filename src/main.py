@@ -107,3 +107,25 @@ def update_task(task_id: int, new_task: schemas.TaskBase, authed_user: schemas.U
         )
         **crud.get_task(db=db, task_id=task_id)
     )
+
+@app.delete("/task/{task_id}", response_model=schemas.Task, tags=["Task"], summary="[Auth] Change task delete status")
+def change_task_delete_status(task_id: int, is_deleted: bool, authed_user: schemas.User = Depends(verify_token), db: Session = Depends(get_db)):
+    db_task = crud.get_task(db=db, task_id=task_id)
+    if db_task is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Task not found"
+        )
+    if db_task.owner_id != authed_user.id:
+        raise HTTPException(
+            status_code=400,
+            detail="No access to delete task"
+        )
+    crud.change_task_delete_status(db=db, task_id=task_id, delete_status=is_deleted)
+    task = crud.get_task(db=db, task_id=task_id)
+    if task is None:
+        raise HTTPException(
+            status_code=204,
+            detail="Task deleted"
+        )
+    return task

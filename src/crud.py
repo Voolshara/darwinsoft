@@ -79,3 +79,11 @@ def update_task(db: Session, task_id: int, task: schemas.TaskBase):
         models.Task.title: task.title
     })
     db.commit()
+
+def change_task_delete_status(db: Session, task_id: int, delete_status: bool):
+    db.query(models.Task).filter(
+        models.Task.id == task_id
+    ).update({
+        models.Task.is_deleted: delete_status
+    })
+    db.commit()
