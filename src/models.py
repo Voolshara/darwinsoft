@@ -7,15 +7,15 @@ class User(Base):
     __tablename__ = "users"
     
     id = Column(Integer, primary_key=True)
-    email = Column(String, unique=True, index=True)
+    login = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     
     tasks = relationship("Task", back_populates="owner")
-    authes = relationship("UserAuth", back_populates="user")
+    authes = relationship("User_Auth", back_populates="user")
     permissions = relationship("Permission", back_populates="user")
 
 
-class UserAuth(Base):
+class User_Auth(Base):
     __tablename__ = "users_authes"
     
     id = Column(Integer, primary_key=True)

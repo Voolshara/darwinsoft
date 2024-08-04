@@ -1,5 +1,8 @@
 from fastapi import FastAPI
+from src import crud, models, schemas
+from src.db import SessionLocal, engine
 
+models.Base.metadata.create_all(bind=engine) # in real prj use alembic
 app = FastAPI()
 
 

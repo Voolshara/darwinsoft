@@ -1,53 +1,44 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 class UserAuthBase(BaseModel):
-    token = str
+    token: str
 
 class UserAuth(UserAuthBase):
+    model_config = ConfigDict(from_attributes = True)
     id: int
     user_id: int
 
-    class Config:
-        orm_mode = True
-
 
 class TaskBase(BaseModel):
-    title = str
+    title: str
 
 class Task(TaskBase):
+    model_config = ConfigDict(from_attributes = True)
     id: int
     is_deleted: bool
     owner_id: int
-
-    class Config:
-        orm_mode = True
 
 class PermissionBase(BaseModel):
     is_permite_to_write: bool
 
 class Permission(PermissionBase):
+    model_config = ConfigDict(from_attributes = True)
     id: int
     is_deleted: bool
     user_id: int
     task_id: int
 
-    class Config:
-        orm_mode = True
-
 
 class UserBase(BaseModel):
-    email: str
+    login: str
 
 class UserSign(UserBase):
     password: str
 
 class User(UserBase):
+    model_config = ConfigDict(from_attributes = True)
     id: int
     tasks: list[Task] = []
     authes: list[UserAuth] = []
     permissions: list[Permission] = []
-
-    class Config:
-        orm_mode = True
-
     

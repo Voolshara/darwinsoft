@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Stanislav <sta-tun-slav@yandex.ru>"]
 readme = "README.md"
+packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -11,6 +12,9 @@ fastapi = {extras = ["standard"], version = "^0.112.0"}
 pydantic = "^2.8.2"
 python-dotenv = "^1.0.1"
 sqlalchemy = "^2.0.31"
+py-bcrypt = "^0.4"
+pytest = "^8.3.2"
+psycopg2-binary = "^2.9.9"
 
 
 [build-system]
