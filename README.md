@@ -18,7 +18,7 @@ POSTGRES_HOST=
 ```
 poetry install
 poetry shell
-fastapi dev main.py
+fastapi dev src/main.py
 ```
 
 # Тест
