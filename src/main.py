@@ -160,3 +160,25 @@ def update_permisson(permisson_id: int, permisson: schemas.PermissionBase, authe
         )
     crud.update_persmission(db=db, permisson_id=permisson_id, permisson=permisson)
     return crud.get_permisson(db=db, permisson_id=permisson_id)
+
+@app.delete("/permisson/{permisson_id}", response_model=schemas.Permission, tags=["Permisson"], summary="[Auth] Change Permisson")
+def change_permisson_delete_status(permisson_id: int, is_deleted: bool, authed_user: schemas.User = Depends(verify_token), db: Session = Depends(get_db)):
+    db_permission = crud.get_permisson(db=db, permisson_id=permisson_id)
+    if db_permission is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Permission not found"
+        )
+    if db_permission.task.owner_id != authed_user.id:
+        raise HTTPException(
+            status_code=400,
+            detail="No access to change permission"
+        )
+    crud.change_persmission_delete_status(db=db, permisson_id=permisson_id, delete_status=is_deleted)
+    permisson = crud.get_permisson(db=db, permisson_id=permisson_id)
+    if permisson is None:
+        raise HTTPException(
+            status_code=204,
+            detail="Permisson deleted"
+        )
+    return permisson

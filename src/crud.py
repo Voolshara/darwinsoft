@@ -112,3 +112,11 @@ def update_persmission(db: Session, permisson_id: int, permisson: schemas.Permis
         models.Permission.is_permite_to_write: permisson.is_permite_to_write
     })
     db.commit()
+
+def change_persmission_delete_status(db: Session, permisson_id: int, delete_status: bool):
+    db.query(models.Permission).filter(
+        models.Permission.id == permisson_id
+    ).update({
+        models.Permission.is_deleted: delete_status
+    })
+    db.commit()

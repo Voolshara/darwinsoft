@@ -39,4 +39,4 @@ poetry run pytest
 - auth to middleware
 - error enums
 - разделить эндпоинты по файлам
-- добавить поле owner_id в таблицу с доступом
+- добавить поле owner_id в таблицу с доступом (пока достаю из perms.task.owner_id)

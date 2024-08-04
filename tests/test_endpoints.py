@@ -117,3 +117,28 @@ def test_change_permission():
         headers={"Authorization" : token2}, 
     ).json()
     assert task_before_change["share_data"]["is_permite_to_write"] != task_after_change["share_data"]["is_permite_to_write"]
+
+def test_change_not_own_permission():
+    assert requests.put(f'http://127.0.0.1:8000/permisson/{permisson_id}',
+        headers={"Authorization" : token2},
+        json={"is_permite_to_write": False}
+    ).status_code == 400
+
+def test_delete_permission():
+    tasks_without_shared = requests.get(f'http://127.0.0.1:8000/task/',
+        headers={"Authorization" : token2}, 
+    ).json()
+    requests.delete(f'http://127.0.0.1:8000/permisson/{permisson_id}',
+        headers={"Authorization" : token1},
+        params={"is_deleted": "true"},
+    )
+    tasks_with_shared = requests.get(f'http://127.0.0.1:8000/task/',
+        headers={"Authorization" : token2}, 
+    ).json()
+    assert len(tasks_without_shared["shared_tasks"]) != len(tasks_with_shared["shared_tasks"])
+
+def test_delete_not_own_permission():
+    assert requests.delete(f'http://127.0.0.1:8000/permisson/{permisson_id}',
+        headers={"Authorization" : token2},
+        params={"is_deleted": "true"},
+    ).status_code == 400
