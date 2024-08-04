@@ -35,3 +35,5 @@ poetry run pytest
 - разделить регистрацию и авторизацию
 - сделать логаут
 - схемы ошибок в Swagger
+- Auth in Swagger
+- auth to middleware

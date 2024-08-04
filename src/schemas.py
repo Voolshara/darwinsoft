@@ -18,6 +18,14 @@ class Task(TaskBase):
     is_deleted: bool
     owner_id: int
 
+class SharedTask(Task):
+    model_config = ConfigDict(from_attributes = True)
+    is_permite_to_write: bool
+
+class TasksList(BaseModel):
+    own_tasks: list[Task]
+    shared_tasks: list[SharedTask]
+
 class PermissionBase(BaseModel):
     is_permite_to_write: bool
 
