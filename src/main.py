@@ -24,7 +24,7 @@ def verify_token(req: Request):
         return user
 
 @app.get("/", summary="Check responsibility")
-async def root():
+def root():
     return {"message": "It's working"}
 
 @app.post("/auth/", response_model=schemas.SuccessAuth, tags=["Auth"], summary="User authorization")
