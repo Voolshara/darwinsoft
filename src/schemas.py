@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 class UserAuthBase(BaseModel):
     token: str
@@ -21,11 +21,12 @@ class Task(TaskBase):
     id: int
     is_deleted: bool
     owner_id: int
-    share_data: TaskSharedData | None
+    share_data : TaskSharedData | None = None
 
 class TasksList(BaseModel):
     own_tasks: list[Task]
     shared_tasks: list[Task]
+
 
 class PermissionBase(BaseModel):
     is_permite_to_write: bool

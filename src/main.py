@@ -23,11 +23,11 @@ def verify_token(req: Request):
             )
         return user
 
-@app.get("/")
+@app.get("/", summary="Check responsibility")
 async def root():
     return {"message": "It's working"}
 
-@app.post("/auth/", response_model=schemas.SuccessAuth)
+@app.post("/auth/", response_model=schemas.SuccessAuth, tags=["Auth"], summary="User authorization")
 def create_user(user: schemas.UserSign, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_login(db=db, login=user.login)
     if not db_user:
@@ -45,7 +45,7 @@ def create_user(user: schemas.UserSign, db: Session = Depends(get_db)):
         user=db_user
     )
 
-@app.get("/tasks/", response_model=schemas.TasksList)
+@app.get("/task/", response_model=schemas.TasksList, tags=["Task"], summary="[Auth] Get all tasks")
 def tasks_list(authed_user: schemas.User = Depends(verify_token), db: Session = Depends(get_db)):
     own_tasks = crud.get_owned_tasks(db=db, owner_id=authed_user.id)
     shared_tasks = crud.get_shared_tasks(db=db, user_id=authed_user.id)
@@ -54,7 +54,7 @@ def tasks_list(authed_user: schemas.User = Depends(verify_token), db: Session = 
          shared_tasks=shared_tasks,
     )
 
-@app.get("/task/{task_id}", response_model=schemas.Task)
+@app.get("/task/{task_id}", response_model=schemas.Task, tags=["Task"], summary="[Auth] Get one task")
 def tasks_list(task_id: int, authed_user: schemas.User = Depends(verify_token), db: Session = Depends(get_db)):
     task = crud.get_task(db=db, task_id=task_id)
     if task is None:
@@ -77,3 +77,8 @@ def tasks_list(task_id: int, authed_user: schemas.User = Depends(verify_token), 
         )
         **task
     )
+
+@app.post("/task/", response_model=schemas.Task, tags=["Task"], summary="[Auth] Create a new task")
+def tasks_list(task: schemas.TaskBase, authed_user: schemas.User = Depends(verify_token), db: Session = Depends(get_db)):
+    return crud.create_task(db=db, task=task, owner_id=authed_user.id)
+    

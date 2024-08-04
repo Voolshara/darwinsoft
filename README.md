@@ -37,3 +37,4 @@ poetry run pytest
 - схемы ошибок в Swagger
 - Auth in Swagger
 - auth to middleware
+- разделить эндпоинты по файлам
