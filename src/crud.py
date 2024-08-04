@@ -94,6 +94,12 @@ def get_permisson(db: Session, permisson_id: int):
         models.Permission.is_deleted.is_(False)
     )).first()
 
+def get_permissons_by_user_id(db: Session, user_id: int):
+    return db.query(models.Permission).filter(and_(
+        models.Permission.user_id == user_id,
+        models.Permission.is_deleted.is_(False)
+    )).all()
+
 def create_task_persmission(db: Session, task_id: int, to_user_id: int, permisson: schemas.PermissionBase):
     db_permisson = models.Permission(
         is_permite_to_write = permisson.is_permite_to_write,

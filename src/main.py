@@ -130,7 +130,11 @@ def change_task_delete_status(task_id: int, is_deleted: bool, authed_user: schem
         )
     return task
 
-@app.post("/permisson/", response_model=schemas.Permission, tags=["Permisson"], summary="[Auth] Share task")
+@app.get("/permisson/", response_model=list[schemas.Permission], tags=["Permisson"], summary="[Auth] Get permissions")
+def create_permisson(authed_user: schemas.User = Depends(verify_token), db: Session = Depends(get_db)):
+    return crud.get_permissons_by_user_id(db=db, user_id=authed_user.id)
+
+@app.post("/permisson/", response_model=schemas.Permission, tags=["Permisson"], summary="[Auth] Add permisson (Share task)")
 def create_permisson(user_id: int, task_id: int, permisson: schemas.PermissionBase, authed_user: schemas.User = Depends(verify_token), db: Session = Depends(get_db)):
     db_task = crud.get_task(db=db, task_id=task_id)
     if db_task is None:

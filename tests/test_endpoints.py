@@ -158,3 +158,8 @@ def test_delete_not_own_permission():
         headers={"Authorization" : token2},
         params={"is_deleted": "true"},
     ).status_code == 400
+
+def test_get_all_permissons():
+    assert requests.get(f'http://127.0.0.1:8000/permisson/',
+        headers={"Authorization" : token2},
+    ).status_code == 200
