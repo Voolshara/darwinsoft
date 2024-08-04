@@ -29,7 +29,6 @@ poetry run pytest
 
 # To Do
 
-- async DB
 - JWT auth
 - alembic
 - разделить регистрацию и авторизацию
@@ -37,6 +36,6 @@ poetry run pytest
 - схемы ошибок в Swagger
 - Auth in Swagger
 - auth to middleware
-- error enums
 - разделить эндпоинты по файлам
 - добавить поле owner_id в таблицу с доступом (пока достаю из perms.task.owner_id)
+- async DB
