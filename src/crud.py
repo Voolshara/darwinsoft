@@ -1,8 +1,11 @@
+from fastapi import HTTPException
+
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
 from src import models, schemas
 from src.common import get_hashed_password, get_random_hash
+
 
 
 def get_user(db: Session, user_id: int):
@@ -29,9 +32,19 @@ def create_token(db: Session, user_id: int):
     db.commit()
     db.refresh(db_user_auth)
     return db_user_auth
-    
+
 def get_task(db: Session, task_id: int):
-    return db.query(models.Task).filter(models.Task.id == task_id).first()
+    return db.query(models.Task).filter(and_(
+        models.Task.id == task_id,
+        models.Task.is_deleted.is_(False)
+    )).first()
+
+def get_task_permission_for_user(db: Session, user_id: int, task_id: int):
+    return db.query(models.Permission).filter(and_(
+        models.Permission.task_id == task_id,
+        models.Permission.user_id == user_id,
+        models.Permission.is_deleted.is_(False)  
+    )).first()
 
 def get_owned_tasks(db: Session, owner_id: int):
     return db.query(models.Task).filter(and_(
@@ -44,8 +57,11 @@ def get_shared_tasks(db: Session, user_id: int):
             models.Permission.user_id == user_id,
             models.Permission.is_deleted.is_(False)
     )).all()
-    return [schemas.SharedTask(
-        is_permite_to_write=i.is_permite_to_write,
+    return [schemas.Task(
+        share_data=schemas.TaskSharedData(
+            owner_id=i.task.owner_id,
+            is_permite_to_write=i.is_permite_to_write
+        ),
         **i.task
     ) for i in shared_permissions]
 

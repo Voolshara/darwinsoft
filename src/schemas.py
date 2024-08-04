@@ -12,19 +12,20 @@ class UserAuth(UserAuthBase):
 class TaskBase(BaseModel):
     title: str
 
+class TaskSharedData(BaseModel):
+    owner_id: int    
+    is_permite_to_write: bool
+
 class Task(TaskBase):
     model_config = ConfigDict(from_attributes = True)
     id: int
     is_deleted: bool
     owner_id: int
-
-class SharedTask(Task):
-    model_config = ConfigDict(from_attributes = True)
-    is_permite_to_write: bool
+    share_data: TaskSharedData | None
 
 class TasksList(BaseModel):
     own_tasks: list[Task]
-    shared_tasks: list[SharedTask]
+    shared_tasks: list[Task]
 
 class PermissionBase(BaseModel):
     is_permite_to_write: bool
