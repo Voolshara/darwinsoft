@@ -104,8 +104,8 @@ def update_task(task_id: int, new_task: schemas.TaskBase, authed_user: schemas.U
         share_data=schemas.TaskSharedData(
             owner_id=db_task.owner_id,
             is_permite_to_write=task_permission.is_permite_to_write
-        )
-        **crud.get_task(db=db, task_id=task_id)
+        ),
+        **crud.get_task(db=db, task_id=task_id).__dict__
     )
 
 @app.delete("/task/{task_id}", response_model=schemas.Task, tags=["Task"], summary="[Auth] Change task delete status")

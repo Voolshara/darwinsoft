@@ -105,6 +105,15 @@ def test_add_permission_for_task():
     ).json()
     assert len(tasks_without_shared["shared_tasks"]) != len(tasks_with_shared["shared_tasks"])
 
+def test_update_shared_task():
+    global task1
+    old_title = task1.title
+    task1 = schemas.Task(**requests.put(f'http://127.0.0.1:8000/task/{task1.id}',
+        headers={"Authorization" : token2}, 
+        json={"title" : "Of course Qu is here! :)"}
+    ).json())
+    assert old_title != task1.title
+
 def test_change_permission():
     task_before_change = requests.get(f'http://127.0.0.1:8000/task/{task1.id}',
         headers={"Authorization" : token2}, 
@@ -117,6 +126,13 @@ def test_change_permission():
         headers={"Authorization" : token2}, 
     ).json()
     assert task_before_change["share_data"]["is_permite_to_write"] != task_after_change["share_data"]["is_permite_to_write"]
+
+def test_update_now_not_shared_task():
+    global task1
+    assert requests.put(f'http://127.0.0.1:8000/task/{task1.id}',
+        headers={"Authorization" : token2}, 
+        json={"title" : "This Qu change not Working :^"}
+    ).status_code == 400
 
 def test_change_not_own_permission():
     assert requests.put(f'http://127.0.0.1:8000/permisson/{permisson_id}',
