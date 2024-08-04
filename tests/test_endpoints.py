@@ -28,7 +28,7 @@ def test_wrong_auth():
         "password": "string2"
     }).status_code == 400
 
-def test_authed_route_without_token():
+def test_authed_endpoint_without_token():
     assert requests.get('http://127.0.0.1:8000/task/').status_code == 401
 
 def test_task_creation():
@@ -44,14 +44,30 @@ def test_task_creation():
         json={"title" : "Test QUQUQUQU"}
     ).json())
 
-def test_assecc_to_own_task():
+def test_access_to_own_task():
     assert requests.get(f'http://127.0.0.1:8000/task/{task1.id}',
         headers={"Authorization" : token1}, 
     ).status_code == 200
 
-def test_assecc_to_not_own_task():
+def test_access_to_not_own_task():
     assert requests.get(f'http://127.0.0.1:8000/task/{task1.id}',
         headers={"Authorization" : token2}, 
+    ).status_code == 400
+
+def test_update_own_task():
+    global task1, task2
+    old_title = task1.title
+    task1 = schemas.Task(**requests.put(f'http://127.0.0.1:8000/task/{task1.id}',
+        headers={"Authorization" : token1}, 
+        json={"title" : "Test No Qu :("}
+    ).json())
+    assert old_title != task1.title
+
+def test_access_to_update_not_own_task():
+    global task1, task2
+    assert requests.put(f'http://127.0.0.1:8000/task/{task1.id}',
+        headers={"Authorization" : token2}, 
+        json={"title" : "No access to task"}
     ).status_code == 400
 
 # def test_get_user():

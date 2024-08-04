@@ -55,7 +55,7 @@ def tasks_list(authed_user: schemas.User = Depends(verify_token), db: Session = 
     )
 
 @app.get("/task/{task_id}", response_model=schemas.Task, tags=["Task"], summary="[Auth] Get one task")
-def tasks_list(task_id: int, authed_user: schemas.User = Depends(verify_token), db: Session = Depends(get_db)):
+def get_task(task_id: int, authed_user: schemas.User = Depends(verify_token), db: Session = Depends(get_db)):
     task = crud.get_task(db=db, task_id=task_id)
     if task is None:
         raise HTTPException(
@@ -79,6 +79,31 @@ def tasks_list(task_id: int, authed_user: schemas.User = Depends(verify_token), 
     )
 
 @app.post("/task/", response_model=schemas.Task, tags=["Task"], summary="[Auth] Create a new task")
-def tasks_list(task: schemas.TaskBase, authed_user: schemas.User = Depends(verify_token), db: Session = Depends(get_db)):
+def create_task(task: schemas.TaskBase, authed_user: schemas.User = Depends(verify_token), db: Session = Depends(get_db)):
     return crud.create_task(db=db, task=task, owner_id=authed_user.id)
-    
+
+@app.put("/task/{task_id}", response_model=schemas.Task, tags=["Task"], summary="[Auth] Update a  task")
+def update_task(task_id: int, new_task: schemas.TaskBase, authed_user: schemas.User = Depends(verify_token), db: Session = Depends(get_db)):
+    db_task = crud.get_task(db=db, task_id=task_id)
+    if db_task is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Task not found"
+        )
+    if db_task.owner_id == authed_user.id:
+        crud.update_task(db=db, task=new_task, task_id=db_task.id)
+        return crud.get_task(db=db, task_id=task_id)
+    task_permission = crud.get_task_permission_for_user(db=db, task_id=task_id, user_id=authed_user.id)
+    if task_permission is None or task_permission.is_permite_to_write is False:
+        raise HTTPException(
+            status_code=400,
+            detail="No access to edit task"
+        )
+    crud.update_task(db=db, task=new_task, task_id=db_task.id)
+    return schemas.Task(
+        share_data=schemas.TaskSharedData(
+            owner_id=db_task.owner_id,
+            is_permite_to_write=task_permission.is_permite_to_write
+        )
+        **crud.get_task(db=db, task_id=task_id)
+    )

@@ -71,4 +71,11 @@ def create_task(db: Session, task: schemas.TaskBase, owner_id: int):
     db.commit()
     db.refresh(db_task)
     return db_task
-    
+
+def update_task(db: Session, task_id: int, task: schemas.TaskBase):
+    db.query(models.Task).filter(
+        models.Task.id == task_id
+    ).update({
+        models.Task.title: task.title
+    })
+    db.commit()
