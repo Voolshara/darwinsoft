@@ -17,7 +17,8 @@ req2 = user_gen() # gen user for test
 user1, token1, user2, token2 = schemas.User(**req1["user"]), req1["token"], schemas.User(**req2["user"]), req2["token"]
 
 task1 = None
-task2 = None
+task2 = None # deleted in below
+permisson_id = None
 
 def test_user_not_same():
     assert (user1 != user2) and (token1 != token2)
@@ -55,7 +56,7 @@ def test_access_to_not_own_task():
     ).status_code == 400
 
 def test_update_own_task():
-    global task1, task2
+    global task1 
     old_title = task1.title
     task1 = schemas.Task(**requests.put(f'http://127.0.0.1:8000/task/{task1.id}',
         headers={"Authorization" : token1}, 
@@ -64,36 +65,55 @@ def test_update_own_task():
     assert old_title != task1.title
 
 def test_access_to_update_not_own_task():
-    global task1, task2
     assert requests.put(f'http://127.0.0.1:8000/task/{task1.id}',
         headers={"Authorization" : token2}, 
         json={"title" : "No access to task"}
     ).status_code == 400
 
 def test_change_own_task_delete_status():
-    global task1, task2
-    assert requests.delete(f'http://127.0.0.1:8000/task/{task1.id}',
-        headers={"Authorization" : token1},
+    assert requests.delete(f'http://127.0.0.1:8000/task/{task2.id}',
+        headers={"Authorization" : token2},
         params={"is_deleted": "true"} 
     ).status_code == 204
 
 def test_change_not_own_task_delete_status():
-    global task1, task2
-    assert requests.delete(f'http://127.0.0.1:8000/task/{task2.id}',
-        headers={"Authorization" : token1},
+    assert requests.delete(f'http://127.0.0.1:8000/task/{task1.id}',
+        headers={"Authorization" : token2},
         params={"is_deleted": "true"} 
     ).status_code == 400
 
+def test_add_permission_for_not_own_task():
+    assert requests.post(f'http://127.0.0.1:8000/permisson/',
+        headers={"Authorization" : token1},
+        params={"task_id": task2.id, "user_id": user1.id},
+        json={"is_permite_to_write": True}
+    ).status_code == 400
 
-# def test_get_user():
-    # assert schemas.User(**crud.get_user_by_login(db=next(db), login=user1.login)) == user1 
+def test_add_permission_for_task():
+    global permisson_id
+    tasks_without_shared = requests.get(f'http://127.0.0.1:8000/task/',
+        headers={"Authorization" : token2}, 
+    ).json()
+    permisson_res = requests.post(f'http://127.0.0.1:8000/permisson/',
+        headers={"Authorization" : token1},
+        params={"task_id": task1.id, "user_id": user2.id},
+        json={"is_permite_to_write": True}
+    ).json()
+    permisson_id = permisson_res["id"] 
+    tasks_with_shared = requests.get(f'http://127.0.0.1:8000/task/',
+        headers={"Authorization" : token2}, 
+    ).json()
+    assert len(tasks_without_shared["shared_tasks"]) != len(tasks_with_shared["shared_tasks"])
 
-# def test_create_and_read_tasks():
-    # task1 = requests.post("")
-
-# def test_create_user():
-#     user = schemas.UserSign(
-#         login="test",
-#         password="quququ"
-#     )
-#     assert crud.create_user(db=next(db), user=user) is not None
+def test_change_permission():
+    task_before_change = requests.get(f'http://127.0.0.1:8000/task/{task1.id}',
+        headers={"Authorization" : token2}, 
+    ).json()
+    requests.put(f'http://127.0.0.1:8000/permisson/{permisson_id}',
+        headers={"Authorization" : token1},
+        json={"is_permite_to_write": False}
+    )
+    task_after_change = requests.get(f'http://127.0.0.1:8000/task/{task1.id}',
+        headers={"Authorization" : token2}, 
+    ).json()
+    assert task_before_change["share_data"]["is_permite_to_write"] != task_after_change["share_data"]["is_permite_to_write"]

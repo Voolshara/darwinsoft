@@ -62,7 +62,7 @@ def get_shared_tasks(db: Session, user_id: int):
             owner_id=i.task.owner_id,
             is_permite_to_write=i.is_permite_to_write
         ),
-        **i.task
+        **i.task.__dict__
     ) for i in shared_permissions]
 
 def create_task(db: Session, task: schemas.TaskBase, owner_id: int):
@@ -85,5 +85,30 @@ def change_task_delete_status(db: Session, task_id: int, delete_status: bool):
         models.Task.id == task_id
     ).update({
         models.Task.is_deleted: delete_status
+    })
+    db.commit()
+
+def get_permisson(db: Session, permisson_id: int):
+    return db.query(models.Permission).filter(and_(
+        models.Permission.id == permisson_id,
+        models.Permission.is_deleted.is_(False)
+    )).first()
+
+def create_task_persmission(db: Session, task_id: int, to_user_id: int, permisson: schemas.PermissionBase):
+    db_permisson = models.Permission(
+        is_permite_to_write = permisson.is_permite_to_write,
+        user_id = to_user_id,
+        task_id = task_id
+    )
+    db.add(db_permisson)
+    db.commit()
+    db.refresh(db_permisson)
+    return db_permisson
+
+def update_persmission(db: Session, permisson_id: int, permisson: schemas.PermissionBase):
+    db.query(models.Permission).filter(
+        models.Permission.id == permisson_id
+    ).update({
+        models.Permission.is_permite_to_write: permisson.is_permite_to_write
     })
     db.commit()

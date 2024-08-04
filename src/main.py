@@ -74,8 +74,8 @@ def get_task(task_id: int, authed_user: schemas.User = Depends(verify_token), db
         share_data=schemas.TaskSharedData(
             owner_id=task.owner_id,
             is_permite_to_write=task_permission.is_permite_to_write
-        )
-        **task
+        ),
+        **task.__dict__
     )
 
 @app.post("/task/", response_model=schemas.Task, tags=["Task"], summary="[Auth] Create a new task")
@@ -129,3 +129,34 @@ def change_task_delete_status(task_id: int, is_deleted: bool, authed_user: schem
             detail="Task deleted"
         )
     return task
+
+@app.post("/permisson/", response_model=schemas.Permission, tags=["Permisson"], summary="[Auth] Share task")
+def create_permisson(user_id: int, task_id: int, permisson: schemas.PermissionBase, authed_user: schemas.User = Depends(verify_token), db: Session = Depends(get_db)):
+    db_task = crud.get_task(db=db, task_id=task_id)
+    if db_task is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Task not found"
+        )
+    if db_task.owner_id != authed_user.id:
+        raise HTTPException(
+            status_code=400,
+            detail="No access to share task"
+        )
+    return crud.create_task_persmission(db=db, task_id=task_id, to_user_id=user_id, permisson=permisson)
+
+@app.put("/permisson/{permisson_id}", response_model=schemas.Permission, tags=["Permisson"], summary="[Auth] Change Permisson")
+def update_permisson(permisson_id: int, permisson: schemas.PermissionBase, authed_user: schemas.User = Depends(verify_token), db: Session = Depends(get_db)):
+    db_permission = crud.get_permisson(db=db, permisson_id=permisson_id)
+    if db_permission is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Permission not found"
+        )
+    if db_permission.task.owner_id != authed_user.id:
+        raise HTTPException(
+            status_code=400,
+            detail="No access to change permission"
+        )
+    crud.update_persmission(db=db, permisson_id=permisson_id, permisson=permisson)
+    return crud.get_permisson(db=db, permisson_id=permisson_id)
