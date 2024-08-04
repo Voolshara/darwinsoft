@@ -24,7 +24,7 @@ def create_user(db: Session, user: schemas.UserSign):
     return db_user
 
 def create_token(db: Session, user_id: int):
-    db_user_auth = models.UserAuth(token=get_random_hash(), user_id=user_id)
+    db_user_auth = models.User_Auth(token=get_random_hash(), user_id=user_id)
     db.add(db_user_auth)
     db.commit()
     db.refresh(db_user_auth)

@@ -38,7 +38,9 @@ class UserSign(UserBase):
 class User(UserBase):
     model_config = ConfigDict(from_attributes = True)
     id: int
-    tasks: list[Task] = []
-    authes: list[UserAuth] = []
-    permissions: list[Permission] = []
+    # tasks: list[Task] = []
+    # permissions: list[Permission] = []
     
+class SuccessAuth(BaseModel):
+    user: User
+    token: str

@@ -1,5 +1,3 @@
-import pytest
-
 from src import crud, schemas
 from src.common import get_db
 
